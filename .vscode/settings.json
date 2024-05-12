@@ -1,0 +1,15 @@
+{
+  "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0}",
+  "material-icon-theme.folders.associations": {
+    "run": "home",
+    "header": "mappings",
+    "help": "messages"
+  },
+  "C_Cpp.errorSquiggles": "enabled",
+  "files.associations": {
+    "cli_parse.h": "c",
+    "parse.h": "c",
+    "token.h": "c",
+    "get.h": "c"
+  }
+}
