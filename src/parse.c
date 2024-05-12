@@ -202,7 +202,7 @@ CliParseResult cli_parse(Cli* cli, int argc, char** argv) {
                     .status = CLI_PARSE_ERROR_UNKNOWN_TOK,
                     .data = {
                         .unknown_token = {
-                            .good_until_index = i,
+                            .index = i,
                         },
                     },
                 };
