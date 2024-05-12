@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include "core.h"
+#include "string.h"
 #include "token.h"
 
 typedef enum CliParseResStatus {
