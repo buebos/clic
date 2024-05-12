@@ -22,7 +22,7 @@ typedef enum CliParseResStatus {
 } CliParseResStatus;
 
 typedef struct CliParseUnknownTok {
-    size_t good_until_index;
+    size_t index;
 } CliParseUnknownTok;
 
 typedef union CliParseResData {
