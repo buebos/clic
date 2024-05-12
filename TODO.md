@@ -1,0 +1,1 @@
+- Enable null terminators for lists instead of passing in the length.

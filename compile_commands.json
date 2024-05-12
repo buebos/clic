@@ -1,0 +1,7 @@
+[
+  {
+    "directory": ".",
+    "command": "gcc -shared src/*.c src/token/*.c src/util/*.c -o build/clic/clic.dll",
+    "file": "main.c"
+  }
+]
