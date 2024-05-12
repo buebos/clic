@@ -61,9 +61,12 @@ CliParseResult cli_param_parse_validate(CliParam* param) {
         bool is_within_constraint = false;
 
         for (size_t i = 0; i < param->value_constraints_len; i++) {
-            char* constraint = strlwr(param->value_constraints[i]);
+            char* constraint = param->value_constraints[i];
 
-            if (strcmp(strlwr(value), constraint) == 0) {
+            str_low(value);
+            str_low(constraint);
+
+            if (strcmp(value, constraint) == 0) {
                 is_within_constraint = true;
                 break;
             }

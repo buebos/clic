@@ -70,7 +70,13 @@ int main(int argc, char **argv) {
     if (strcmp(target->id, "hello") == 0) {
         char *name = cli_get(app.cli, "hello.name");
 
-        printf("[INFO]: Hello %s from the 'hello' command!", name ? name : "");
+        printf("[INFO]: Hello ");
+
+        if (name) {
+            printf("%s ", name);
+        }
+
+        printf("from the 'hello' command!\n");
     } else {
         printf("[WARN]: Command with no handle case.\n");
         return -1;
