@@ -7,13 +7,13 @@
 #include "../components/error.c"
 #include "../components/hashmap.c"
 
-enum Clic_ArgType {
+typedef enum Clic_ArgType {
     CLIC_ARGTYPE_BOOLEAN = 0,
     CLIC_ARGTYPE_INT,
     CLIC_ARGTYPE_FLOAT,
     CLIC_ARGTYPE_STRING,
     CLIC_ARGTYPE_ENUM,
-};
+} Clic_ArgType;
 
 typedef struct Clic_ArgConstraintInteger {
     int min;
@@ -36,17 +36,16 @@ typedef struct Clic_ArgConstraintString {
 } Clic_ArgConstraintString;
 typedef struct Clic_ArgConstraintEnum {
     char **values;
-
     char *value;
 } Clic_ArgConstraintEnum;
 
-union Clic_ArgConstraint {
+typedef union Clic_ArgConstraint {
     Clic_ArgConstraintInteger integer;
     Clic_ArgConstraintFloat floatingpoint;
     Clic_ArgConstraintString string;
     Clic_ArgConstraintEnum enumeration;
     bool boolean;
-};
+} Clic_ArgConstraint;
 
 typedef struct Clic_Arg {
     char *id;
@@ -55,8 +54,8 @@ typedef struct Clic_Arg {
 
     char nullable;
 
-    enum Clic_ArgType type;
-    union Clic_ArgConstraint constraint;
+    Clic_ArgType type;
+    Clic_ArgConstraint constraint;
 } Clic_Arg;
 
 typedef struct Clic_Command {
@@ -82,7 +81,7 @@ typedef struct Clic_Cli {
 
 Clic_Hashmap clic_args_hash(Clic_Arg args[]) {
     Clic_Hashmap map = clic_hashmap_init();
-    for (int i = 0; i < sizeof(*args) / sizeof(args[0]); i++) {
+    for (int i = 0; i < (sizeof(*args) / sizeof(args[0]) + 1); i++) {
         clic_hashmap_set(&map, args[i].id, &args[i]);
         clic_hashmap_set(&map, args[i].abbr, &args[i]);
     }
@@ -90,7 +89,7 @@ Clic_Hashmap clic_args_hash(Clic_Arg args[]) {
 }
 Clic_Hashmap clic_commands_hash(Clic_Command *commands[]) {
     Clic_Hashmap map = clic_hashmap_init();
-    for (int i = 0; i < sizeof(**commands) / sizeof(commands[0]); i++) {
+    for (int i = 0; i < (sizeof(**commands) / sizeof(commands[0]) + 1); i++) {
         clic_hashmap_set(&map, commands[i]->id, &commands[i]);
     }
     return map;

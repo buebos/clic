@@ -6,9 +6,9 @@ Clic_Error help_command_validate(Clic_Arg *args) {
     return (Clic_Error){.code = 0};
 }
 Clic_Error help_command_execute(Clic_Arg *args) {
-    int *value = clic_args_get(args, "value");
+    int *value = clic_args_get(args, "command");
 
-    printf("Value: %d\n", value);
+    printf("Help command 'command' arg value: %d\n", value);
 
     return (Clic_Error){.code = 0};
 }
@@ -46,7 +46,7 @@ Clic_Cli cli = {
 int main(int argc, char *argv[]) {
     Clic_Command command = {0};
 
-    CLIC_ERROR_TRY(clic_cli_parse(&cli, &command, argc, argv));
+    CLIC_ERROR_TRY(clic_cli_parse(&cli, argc, argv, &command));
     CLIC_ERROR_TRY(command.execute(command.args));
 
     return 0;

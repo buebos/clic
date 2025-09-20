@@ -87,6 +87,7 @@ Clic_Error clic_args_parse(Clic_Arg *args, Clic_Hashmap *args_hash, int argc, ch
         }
     }
 
+
     return (Clic_Error){.code = 0};
 }
 
@@ -98,22 +99,25 @@ Clic_Error clic_cli_parse(Clic_Cli *cli, int argc, char *argv[], Clic_Command *c
         };
     }
 
-    char offset = 0;
+    char offset = 1;
 
     if (argc == 1) {
         *command_target = *cli->root_command;
-        offset = 1;
     } else {
         cli->_commands_hash = clic_commands_hash(cli->commands);
 
         Clic_Command *match = clic_hashmap_get(&cli->_commands_hash, argv[1]);
 
+        /**
+         * No command matched for the 2nd arg so take the root command
+         * as the default.
+         */
         if (NULL == match) {
-            return (Clic_Error){.code = -1, .message = "No command target found."};
+            *command_target = *cli->root_command;
+        } else {
+            *command_target = *match;
+            offset = 2;
         }
-
-        *command_target = *match;
-        offset = 2;
     }
 
     Clic_Error args_parse_err = clic_args_parse(
