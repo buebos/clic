@@ -1,7 +1,0 @@
-[
-  {
-    "directory": ".",
-    "command": "gcc src/*.c src/token/*.c src/util/*.c sample/main.c -o build/sample/sample",
-    "file": "main.c"
-  }
-]

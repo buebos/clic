@@ -1,86 +1,53 @@
+#include "../include/main.c"
+
 #include <stdio.h>
 
-#include "../include/get.h"
-#include "../include/parse.h"
+Clic_Error help_command_validate(Clic_Arg *args) {
+    return (Clic_Error){.code = 0};
+}
+Clic_Error help_command_execute(Clic_Arg *args) {
+    int *value = clic_args_get(args, "value");
 
-typedef struct AppSample {
-    Cli *cli;
-} AppSample;
+    printf("Value: %d\n", value);
 
-typedef int (*AppCommandRun)(AppSample *app);
+    return (Clic_Error){.code = 0};
+}
+Clic_Command help_command = {
+    .id = "help",
+    .description = "Help command.",
+    .execute = help_command_execute,
+    .validate = help_command_validate,
 
-CliCommand Hello = {
-    .id = "hello",
-    .run = NULL,
-
-    .aliases_len = 0,
-    .aliases = NULL,
-
-    .cmds_len = 0,
-    .cmds = NULL,
-
-    .params_len = 1,
-    .params = (CliParam[]){
+    .args = (Clic_Arg[]){
         {
-            .id = "hello.name",
-            .is_list = false,
-            .is_nullable = true,
-            .type = CLI_STR,
-
-            .value_constraints_len = 0,
-            .value_constraints = NULL,
+            .id = "command",
+            .abbr = "c",
+            .type = CLIC_ARGTYPE_INT,
+            .constraint = {
+                .integer = {
+                    .min = 0,
+                    .max = 1000,
+                    .value = 0,
+                },
+            },
         },
     },
-
-    .flags_len = 0,
-    .flags = NULL,
 };
 
-Cli cli = {
-    .name = "sample",
-    .epilogue = "The sample clic app",
+Clic_Cli cli = {
+    .id = "app",
+    .description = "This is an example app for demonstrating the cli functionality.",
 
-    .cmds_len = 1,
-    .cmds = (CliCommand *[]){
-        &Hello,
+    .commands = (Clic_Command *[]){
+        &help_command,
     },
-
-    .flags_len = 0,
-    .flags = NULL,
 };
 
-int main(int argc, char **argv) {
-    AppSample app = {
-        .cli = &cli,
-    };
+int main(int argc, char *argv[]) {
+    Clic_Command command = {0};
 
-    CliParseResult res = cli_parse(app.cli, argc, argv);
-
-    if (res.status != CLI_PARSE_SUCCESS) {
-        printf("[ERROR]: Something went wrong parsing the cli input, error code: %d.\n", res.status);
-        return res.status;
-    }
-
-    CliCommand *target = cli_get_cmd(&cli);
-
-    if (target->run) {
-        return ((AppCommandRun)target->run)(&app);
-    }
-
-    if (strcmp(target->id, "hello") == 0) {
-        char *name = cli_get(app.cli, "hello.name");
-
-        printf("[INFO]: Hello ");
-
-        if (name) {
-            printf("%s ", name);
-        }
-
-        printf("from the 'hello' command!\n");
-    } else {
-        printf("[WARN]: Command with no handle case.\n");
-        return -1;
-    }
+    CLIC_ERROR_TRY(clic_cli_parse(&cli, &command, argc, argv));
+    CLIC_ERROR_TRY(command.execute(command.args));
 
     return 0;
 }

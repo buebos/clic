@@ -1,2 +1,6 @@
 # The output exe or dll files
 build
+
+*.out
+*.dll
+*.exe
