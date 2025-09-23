@@ -11,6 +11,8 @@
     "parse.h": "c",
     "token.h": "c",
     "get.h": "c",
-    "stdio.h": "c"
+    "stdio.h": "c",
+    "stdlib.h": "c",
+    "stdbool.h": "c"
   }
 }

@@ -80,7 +80,8 @@ int clic_error_print(Clic_Error* error, char* override_message) {
     }
 #define CLIC_ERROR_CHECK_END() }
 
-/* Option 3: Comma-separated syntax - up to 8 expressions, most natural
+/**
+ * Option 3: Comma-separated syntax - up to 8 expressions, most natural
  * Usage:
  *   CLIC_ERROR_CHECK_MULTI(func1(), func2(), func3());
  * NOTE: Limited to 8 expressions max. Extend _GET_MACRO_8 for more.

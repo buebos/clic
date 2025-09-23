@@ -1,0 +1,4 @@
+#ifndef __CLIC_FEATURE_CLI_PARSING_C__
+#define __CLIC_FEATURE_CLI_PARSING_C__
+
+#endif /* __CLIC_FEATURE_CLI_PARSING_C__ */

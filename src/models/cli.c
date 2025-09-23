@@ -6,95 +6,70 @@
 
 #include "../components/error.c"
 #include "../components/hashmap.c"
-
-typedef enum Clic_ArgType {
-    CLIC_ARGTYPE_BOOLEAN = 0,
-    CLIC_ARGTYPE_INT,
-    CLIC_ARGTYPE_FLOAT,
-    CLIC_ARGTYPE_STRING,
-    CLIC_ARGTYPE_ENUM,
-} Clic_ArgType;
-
-typedef struct Clic_ArgConstraintInteger {
-    int min;
-    int max;
-    int divisible;
-
-    int value;
-} Clic_ArgConstraintInteger;
-typedef struct Clic_ArgConstraintFloat {
-    float min;
-    float max;
-
-    float value;
-} Clic_ArgConstraintFloat;
-typedef struct Clic_ArgConstraintString {
-    size_t min_len;
-    size_t max_len;
-
-    char *value;
-} Clic_ArgConstraintString;
-typedef struct Clic_ArgConstraintEnum {
-    char **values;
-    char *value;
-} Clic_ArgConstraintEnum;
-
-typedef union Clic_ArgConstraint {
-    Clic_ArgConstraintInteger integer;
-    Clic_ArgConstraintFloat floatingpoint;
-    Clic_ArgConstraintString string;
-    Clic_ArgConstraintEnum enumeration;
-    bool boolean;
-} Clic_ArgConstraint;
-
-typedef struct Clic_Arg {
-    char *id;
-    char *abbr;
-    char *description;
-
-    char nullable;
-
-    Clic_ArgType type;
-    Clic_ArgConstraint constraint;
-} Clic_Arg;
-
-typedef struct Clic_Command {
-    char *id;
-    char *description;
-
-    Clic_Error (*execute)(Clic_Arg *);
-    Clic_Error (*validate)(Clic_Arg *);
-
-    Clic_Arg *args;
-} Clic_Command;
+#include "arg.c"
+#include "command.c"
 
 typedef struct Clic_Cli {
     char *id;
     char *description;
 
-    Clic_Hashmap _commands_hash;
-    Clic_Hashmap _args_hash;
+    /** Private */
+    struct _Clic_Cli {
+        Clic_Hashmap commands_hash;
+        Clic_Hashmap args_hash;
+    } _;
 
     Clic_Command *root_command;
     Clic_Command *commands[];
 } Clic_Cli;
 
-Clic_Hashmap clic_args_hash(Clic_Arg args[]) {
-    Clic_Hashmap map = clic_hashmap_init();
-    for (int i = 0; i < (sizeof(*args) / sizeof(args[0]) + 1); i++) {
-        clic_hashmap_set(&map, args[i].id, &args[i]);
-        clic_hashmap_set(&map, args[i].abbr, &args[i]);
+Clic_Error clic_cli_parse(Clic_Cli *cli, int argc, char *argv[], Clic_Command *command_target) {
+    if (argc == 1 && !cli->root_command) {
+        return (Clic_Error){
+            .code = 1,
+            .message = "No command provided.",
+        };
     }
-    return map;
-}
-Clic_Hashmap clic_commands_hash(Clic_Command *commands[]) {
-    Clic_Hashmap map = clic_hashmap_init();
-    for (int i = 0; i < (sizeof(**commands) / sizeof(commands[0]) + 1); i++) {
-        clic_hashmap_set(&map, commands[i]->id, &commands[i]);
-    }
-    return map;
-}
 
-void *clic_args_get();
+    char offset = 1;
+
+    if (argc == 1) {
+        *command_target = *cli->root_command;
+    } else {
+        cli->_.commands_hash = clic_commands_hash(cli->commands);
+
+        Clic_Command *match = clic_hashmap_get(&cli->_.commands_hash, argv[1]);
+
+        if (NULL == match && !cli->root_command) {
+            return (Clic_Error){.code = 1, "No command provided."};
+        }
+
+        /**
+         * No command matched for the 2nd arg so take the root command
+         * as the default.
+         */
+        if (NULL == match && cli->root_command) {
+            *command_target = *cli->root_command;
+        } else {
+            *command_target = *match;
+            offset = 2;
+        }
+    }
+
+    Clic_Error args_parse_err = clic_args_parse(
+        command_target->standalone_arg,
+        command_target->args,
+        &cli->_.args_hash,
+        argc - offset,
+        argv + offset
+
+    );
+
+    if (args_parse_err.code != 0) {
+        return args_parse_err;
+    }
+
+    return (Clic_Error){0};
+}
 
 #endif /* __CLIC_CLI_H__ */

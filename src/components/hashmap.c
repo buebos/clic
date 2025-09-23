@@ -65,7 +65,7 @@ static Clic_Error _clic_hashmap_grow(Clic_Hashmap* map) {
     free(map->buckets);
     map->buckets = new_buckets;
     map->capacity = new_capacity;
-    return (Clic_Error){.code = 0};
+    return (Clic_Error){0};
 }
 
 Clic_Hashmap clic_hashmap_init() {
@@ -100,7 +100,7 @@ Clic_Error clic_hashmap_set(Clic_Hashmap* map, char* key, void* value) {
     for (Clic_HashmapEntry* it = head; it; it = it->next) {
         if (strcmp(it->key, key) == 0) {
             it->value = value;
-            return (Clic_Error){.code = 0};
+            return (Clic_Error){0};
         }
     }
 
@@ -111,7 +111,7 @@ Clic_Error clic_hashmap_set(Clic_Hashmap* map, char* key, void* value) {
     new_entry->next = head;
     map->buckets[index] = new_entry;
     map->length++;
-    return (Clic_Error){.code = 0};
+    return (Clic_Error){0};
 }
 
 void* clic_hashmap_get(Clic_Hashmap* map, char* key) {
