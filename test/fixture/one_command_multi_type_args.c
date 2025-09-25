@@ -95,12 +95,22 @@ Clic_Command one_command = {
     },
 };
 
+Clic_Command no_args_command = {
+    .id = "command",
+    .description = "One command demonstrating multi-type arguments",
+    .execute = NULL,
+    .validate = NULL,
+    .standalone_arg = NULL,
+    .args = NULL,
+};
+
 Clic_Cli cli = {
     .id = "one_command_multi_type_args",
     .description = "Example configuration for a CLI test fixture.",
     .root_command = &one_command,
     .commands = {
         &one_command,
+        &no_args_command,
         NULL,
     },
 };

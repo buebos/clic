@@ -29,9 +29,7 @@ Clic_Command help_command = {
         },
     },
 
-    .args = (Clic_Arg[]){
-
-    },
+    .args = NULL,
 };
 
 Clic_Cli cli = {

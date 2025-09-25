@@ -77,94 +77,35 @@ typedef struct Clic_Argv {
     char *cleaned_str;
 } Clic_Argv;
 
-Clic_Argv clic_argv_init(char *argv) {
-    if (argv[0] == '-' && argv[1] != '-') {
-        return (Clic_Argv){.type = CLIC_ARGVTYPE_ARG_ABBR, .cleaned_str = argv + 1};
+Clic_Argv clic_argv_init(char *arg) {
+    if (arg[0] == '-' && arg[1] != '-') {
+        return (Clic_Argv){.type = CLIC_ARGVTYPE_ARG_ABBR, .cleaned_str = arg + 1};
     }
-    if (argv[0] == '-' && argv[1] == '-') {
-        return (Clic_Argv){.type = CLIC_ARGVTYPE_ARG_ID, .cleaned_str = argv + 2};
+    if (arg[0] == '-' && arg[1] == '-') {
+        return (Clic_Argv){.type = CLIC_ARGVTYPE_ARG_ID, .cleaned_str = arg + 2};
     }
 
-    return (Clic_Argv){.type = CLIC_ARGVTYPE_ARG_STANDALONE, .cleaned_str = argv};
+    return (Clic_Argv){.type = CLIC_ARGVTYPE_ARG_STANDALONE, .cleaned_str = arg};
 }
 
 Clic_Hashmap clic_args_hash(Clic_Arg *standalone_arg, Clic_Arg args[]) {
     Clic_Hashmap map = clic_hashmap_init();
 
-    clic_hashmap_set(&map, standalone_arg->id, standalone_arg);
-    clic_hashmap_set(&map, standalone_arg->abbr, standalone_arg);
+    if (standalone_arg) {
+        clic_hashmap_set(&map, standalone_arg->id, standalone_arg);
+        clic_hashmap_set(&map, standalone_arg->abbr, standalone_arg);
+    }
+
+    if (!args) {
+        return map;
+    }
 
     for (int i = 0; i < (sizeof(*args) / sizeof(args[0]) + 1); i++) {
         clic_hashmap_set(&map, args[i].id, &args[i]);
         clic_hashmap_set(&map, args[i].abbr, &args[i]);
     }
+
     return map;
-}
-
-Clic_Error clic_args_parse(
-    Clic_Arg *standalone_arg,
-    Clic_Arg *args,
-    Clic_Hashmap *args_hash,
-    int argc,
-    char *argv[]
-
-) {
-    for (int i = 0; i < argc; i++) {
-        Clic_Argv argvelem = clic_argv_init(argv[i]);
-
-        Clic_Arg *arg_target = NULL;
-        char *arg_str_value = NULL;
-
-        if (argvelem.type == CLIC_ARGVTYPE_ARG_STANDALONE) {
-            arg_target = standalone_arg;
-        }
-        if (argvelem.type == CLIC_ARGVTYPE_ARG_ID || argvelem.type == CLIC_ARGVTYPE_ARG_ABBR) {
-            arg_target = clic_hashmap_get(args_hash, argvelem.cleaned_str);
-        }
-
-        if (NULL == arg_target) {
-            return (Clic_Error){.code = -1, .message = "No argument target found."};
-        }
-
-        if (argvelem.type == CLIC_ARGVTYPE_ARG_STANDALONE) {
-            arg_str_value = argvelem.cleaned_str;
-        } else if (arg_target->type != CLIC_ARGTYPE_BOOLEAN) {
-            if (i == argc - 1 && arg_target->nullable == false) {
-                return (Clic_Error){.code = -1, .message = "No argument value provided."};
-            }
-
-            Clic_Argv argvelem_next = clic_argv_init(argv[i + 1]);
-
-            if (argvelem_next.type != CLIC_ARGVTYPE_ARG_STANDALONE) {
-                return (Clic_Error){.code = -1, .message = "No argument value provided."};
-            }
-
-            arg_str_value = argvelem_next.cleaned_str;
-            i++;
-        }
-
-        switch (arg_target->type) {
-            case CLIC_ARGTYPE_BOOLEAN:
-                arg_target->constraint.boolean.value = true;
-                break;
-            case CLIC_ARGTYPE_INT:
-                arg_target->constraint.integer.value = atoi(arg_str_value);
-                break;
-            case CLIC_ARGTYPE_FLOAT:
-                arg_target->constraint.floatingpoint.value = atof(arg_str_value);
-                break;
-            case CLIC_ARGTYPE_STRING:
-                arg_target->constraint.string.value = arg_str_value;
-                break;
-            case CLIC_ARGTYPE_ENUM:
-                arg_target->constraint.enumeration.value = arg_str_value;
-                break;
-            default:
-                break;
-        }
-    }
-
-    return (Clic_Error){0};
 }
 
 #endif /* __CLIC_MODELS_ARG_C__ */
