@@ -3,8 +3,9 @@
 
 #include "../../components/error.c"
 #include "../../models/arg.c"
-#include "../../models/command.c"
+#include "../../models/argtok.c"
 #include "../../models/cli.c"
+#include "../../models/command.c"
 
 Clic_Error clic_args_parse(
     Clic_Arg *standalone_arg,
@@ -15,15 +16,15 @@ Clic_Error clic_args_parse(
 
 ) {
     for (int i = 0; i < argc; i++) {
-        Clic_Argv argvelem = clic_argv_init(argv[i]);
+        Clic_ArgTok argvelem = clic_argtok_init(argv[i]);
 
         Clic_Arg *arg_target = NULL;
         char *arg_str_value = NULL;
 
-        if (argvelem.type == CLIC_ARGVTYPE_ARG_STANDALONE) {
+        if (argvelem.type == CLIC_ARGTOKTYPE_ARG_STANDALONE) {
             arg_target = standalone_arg;
         }
-        if (argvelem.type == CLIC_ARGVTYPE_ARG_ID || argvelem.type == CLIC_ARGVTYPE_ARG_ABBR) {
+        if (argvelem.type == CLIC_ARGTOKTYPE_ARG_ID || argvelem.type == CLIC_ARGTOKTYPE_ARG_ABBR) {
             arg_target = clic_hashmap_get(args_hash, argvelem.cleaned_str);
         }
 
@@ -31,16 +32,16 @@ Clic_Error clic_args_parse(
             return (Clic_Error){.code = -1, .message = "No argument target found."};
         }
 
-        if (argvelem.type == CLIC_ARGVTYPE_ARG_STANDALONE) {
+        if (argvelem.type == CLIC_ARGTOKTYPE_ARG_STANDALONE) {
             arg_str_value = argvelem.cleaned_str;
         } else if (arg_target->type != CLIC_ARGTYPE_BOOLEAN) {
             if (i == argc - 1 && arg_target->nullable == false) {
                 return (Clic_Error){.code = -1, .message = "No argument value provided."};
             }
 
-            Clic_Argv argvelem_next = clic_argv_init(argv[i + 1]);
+            Clic_ArgTok argvelem_next = clic_argtok_init(argv[i + 1]);
 
-            if (argvelem_next.type != CLIC_ARGVTYPE_ARG_STANDALONE) {
+            if (argvelem_next.type != CLIC_ARGTOKTYPE_ARG_STANDALONE) {
                 return (Clic_Error){.code = -1, .message = "No argument value provided."};
             }
 

@@ -67,27 +67,6 @@ typedef struct Clic_Arg {
     } _;
 } Clic_Arg;
 
-typedef enum Clic_ArgvType {
-    CLIC_ARGVTYPE_ARG_ID = 0,
-    CLIC_ARGVTYPE_ARG_ABBR,
-    CLIC_ARGVTYPE_ARG_STANDALONE,
-} Clic_ArgvType;
-typedef struct Clic_Argv {
-    Clic_ArgvType type;
-    char *cleaned_str;
-} Clic_Argv;
-
-Clic_Argv clic_argv_init(char *arg) {
-    if (arg[0] == '-' && arg[1] != '-') {
-        return (Clic_Argv){.type = CLIC_ARGVTYPE_ARG_ABBR, .cleaned_str = arg + 1};
-    }
-    if (arg[0] == '-' && arg[1] == '-') {
-        return (Clic_Argv){.type = CLIC_ARGVTYPE_ARG_ID, .cleaned_str = arg + 2};
-    }
-
-    return (Clic_Argv){.type = CLIC_ARGVTYPE_ARG_STANDALONE, .cleaned_str = arg};
-}
-
 Clic_Hashmap clic_args_hash(Clic_Arg *standalone_arg, Clic_Arg args[]) {
     Clic_Hashmap map = clic_hashmap_init();
 
